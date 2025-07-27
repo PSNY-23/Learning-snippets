@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>JS Code Runner</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://unpkg.com/prettier@2.8.8/standalone.js"></script>
+  <script src="https://unpkg.com/prettier@2.8.8/parser-babel.js"></script>
+  <script src="https://unpkg.com/monaco-editor@0.45.0/min/vs/loader.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="left-panel">
+      <div class="header">JavaScript Editor</div>
+      <div id="editor"></div>
+      <div class="actions">
+        <button onclick="formatCode()">Format</button>
+        <button onclick="runCode()">Run</button>
+      </div>
+    </div>
+    <div class="right-panel">
+      <div class="header">Output</div>
+      <pre id="output">// Output will appear here</pre>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
