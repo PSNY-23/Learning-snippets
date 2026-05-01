@@ -1,0 +1,62 @@
+<body>
+  <video id="video" autoplay controls></video>
+  <br />
+  <button onclick="startRecording()">Start recording</button>
+  <button onclick="stopRecording()">End recording</button>
+  <button onclick="playRecording()">Play recording</button>
+
+  <script>
+    let streams;
+    let recorder;
+    let recordingChunks = [];
+    const vidElm = document.getElementById("video");
+
+    const startRecording = async () => {
+      recordingChunks = []; // Clear previous recording
+      streams = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+
+      if (!streams) {
+        alert("Camera and Microphone not accessible");
+        return;
+      }
+
+      vidElm.srcObject = streams;
+
+      recorder = new MediaRecorder(streams);
+
+      recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) {
+          recordingChunks.push(event.data);
+        }
+      };
+
+      recorder.start();
+      console.log("Recording started");
+    };
+
+    const stopRecording = () => {
+      if (recorder && recorder.state !== "inactive") {
+        recorder.stop();
+      }
+
+      if (streams) {
+        streams.getTracks().forEach((track) => track.stop());
+        vidElm.srcObject = null;
+      }
+    };
+
+    const playRecording = () => {
+      if (recordingChunks.length > 0) {
+        const blob = new Blob(recordingChunks, { type: "video/webm" });
+        const url = URL.createObjectURL(blob);
+        vidElm.src = url;
+        vidElm.play();
+      } else {
+        alert("No recording found!");
+      }
+    };
+  </script>
+</body>

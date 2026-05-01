@@ -1,0 +1,4 @@
+The only diff in the code of camera recording and screen recording is
+that, 
+camera-recording => navigator.mediaDevices.getUserMedia({video: true, audio: true,});
+screen-recording => navigator.mediaDevices.getDisplayMedia({video: true, audio: true,})

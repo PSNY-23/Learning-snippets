@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <!-- Hidden video playing your movie -->
+    <video id="movie" src="movie.mp4" autoplay muted playsinline style="display: none;"></video>
+
+    <!-- Visible video to show the recording or playback -->
+    <video id="video" autoplay controls></video>
+    <br />
+
+    <button onclick="startRecording()">Start Fake Screen Recording</button>
+    <button onclick="stopRecording()">End Recording</button>
+    <button onclick="playRecording()">Play Recording</button>
+
+    <script>
+      const movie = document.getElementById('movie');
+      const vidElm = document.getElementById('video');
+
+      let canvas = document.createElement('canvas');
+      canvas.width = 1920;
+      canvas.height = 1080;
+      const ctx = canvas.getContext('2d');
+
+      let recordingChunks = [];
+      let recorder;
+      let stream;
+      let drawInterval;
+
+      const startRecording = async () => {
+        // Make sure the video is ready
+        await movie.play();
+
+        // Start drawing movie frames to canvas
+        drawInterval = setInterval(() => {
+          ctx.drawImage(movie, 0, 0, canvas.width, canvas.height);
+        }, 1000 / 30); // 30 FPS
+
+        // Capture fake screen stream from canvas
+        stream = canvas.captureStream(30); // 30 fps
+        vidElm.srcObject = stream;
+
+        // Start recording
+        recordingChunks = [];
+        recorder = new MediaRecorder(stream, {
+          mimeType: 'video/webm;codecs=vp9',
+          videoBitsPerSecond: 8000000
+        });
+
+        recorder.ondataavailable = e => {
+          if (e.data.size > 0) {
+            recordingChunks.push(e.data);
+          }
+        };
+
+        recorder.start();
+        console.log('Fake screen recording started');
+      };
+
+      const stopRecording = () => {
+        if (recorder && recorder.state !== 'inactive') {
+          recorder.stop();
+        }
+
+        if (stream) {
+          stream.getTracks().forEach(track => track.stop());
+        }
+
+        clearInterval(drawInterval);
+        console.log('Recording stopped');
+      };
+
+      const playRecording = () => {
+        if (recordingChunks.length > 0) {
+          const blob = new Blob(recordingChunks, { type: 'video/webm' });
+          const url = URL.createObjectURL(blob);
+          vidElm.srcObject = null;
+          vidElm.src = url;
+          vidElm.play();
+        } else {
+          alert('No recording found!');
+        }
+      };
+    </script>
+  </body>
+</html>
